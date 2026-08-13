@@ -1,0 +1,9 @@
+1.用Node.js逐行解析collaboration_ops.ndjson，并载入members.json和causal_policy.json。
+2.按op_id分组比较revision和ingest_seq，保留规范修订并记录旧修订的替代关系。
+3.以成员清单初始化actor_clock，检查actor_seq和dependencies是否满足。
+4.对同时就绪的规范操作按received_at与op_id排序，逐条读取账户状态、角色权限和目标状态。
+5.在内存状态机执行insert、edit和delete，为首次成功插入分配ordinal并保留last_op_id。
+6.将comment写入独立集合，保持目标块正文、ordinal与last_op_id不变。
+7.为accepted和rejected写入causal_rank、reason与actor_clock_after，再推进对应成员时钟。
+8.按ingest_seq导出operation_decisions.csv，按ordinal生成document_snapshot.json，并按actor_id生成actor_clocks.csv。
+9.从三份业务报告生成reconciliation_summary.json，核对终态和数量关系。
