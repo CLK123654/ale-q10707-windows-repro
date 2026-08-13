@@ -1,0 +1,9 @@
+协作文档服务恢复连接后收到乱序的离线编辑，其中部分操作又以更高修订重传。直接按NDJSON到达行覆盖会把旧草稿写回页面，也无法解释viewer、停用成员和已删除目标的处置结果。协作平台工程师负责恢复文档终态，文档服务消费快照和成员时钟，事故分析团队使用操作台账追溯每次裁决。
+
+input_data包含collaboration_ops.ndjson、members.json、causal_policy.json、starter、package.json、README和执行入口。操作流与成员清单提供事件和账户状态，策略文件给出规范修订、就绪顺序、角色权限、终态时钟和交付路径。
+
+请在与input_data同级的output/src/replay_collaboration.mjs完成Node.js程序，并从input_data执行npm run process。每个op_id按revision降序和ingest_seq降序选择规范修订；旧修订只进入追溯台账，不进入文档状态机。规范操作只有在本人actor_seq等于当前时钟加1且dependencies全部满足后才能裁决，同时就绪的操作按策略顺序处理。
+
+accepted与rejected都属于终态并推进成员时钟，只有accepted能修改块或新增评论。insert、edit、delete和comment分别遵守成员账户、角色权限与当前目标状态。页面块按首次成功插入顺序排列，评论与正文分开保存。
+
+交付output/src/replay_collaboration.mjs、output/reports/operation_decisions.csv、output/reports/document_snapshot.json、output/reports/actor_clocks.csv和output/reports/reconciliation_summary.json。对账摘要记录原始行、规范操作、终态、块、评论和成员时钟之间的数量关系。每次执行覆盖四份报告，不得修改data与rules；合同无效或规范操作无法进入终态时返回非零状态，并清除未完成报告。
