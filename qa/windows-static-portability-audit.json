@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "task_asset_id": "node_collaboration_causal_replay",
+  "task_key": "id:10707",
+  "result": "PASS",
+  "actions_triggered": false,
+  "business_entry_run_locally": false,
+  "entry": "input_data/tools/run-task.mjs",
+  "review": {
+    "runtime": "Node.js20或更高兼容版本，只使用内置标准模块",
+    "path_handling": "path.resolve与path.join构造输入和交付路径，不依赖盘符、用户目录或POSIX分隔符",
+    "process_handling": "spawnSync以参数数组调用process.execPath，不经过shell解释，并启用windowsHide",
+    "encoding": "NDJSON、JSON、CSV与源码明确使用UTF-8",
+    "line_endings": "NDJSON按CRLF或LF拆行，CSV允许CRLF或LF",
+    "unicode_and_spaces": "Node.js文件系统与路径API可处理中文和空格目录，源码没有手工拼接路径分隔符",
+    "dependency_lock": "package.json没有第三方运行依赖，入口固定为node tools/run-task.mjs",
+    "relative_location": "入口从process.cwd读取input_data并将output定位到同级目录",
+    "timeout": "子进程设置有限超时，异常路径清理未完成报告",
+    "posix_dependency": "none",
+    "shell_script_dependency": "none",
+    "container_or_wsl_dependency": "none"
+  },
+  "powershell_entry_review": "在PowerShell进入input_data后执行npm run process，package.json直接调用node，没有Bash命令、环境变量前缀或重定向语法。",
+  "conclusion": "运行时、入口、路径、编码、换行、中文空格目录和失败清理均可由原生Windows环境提供。结论来自静态代码与依赖审阅，没有触发远程运行或本地业务入口。"
+}
