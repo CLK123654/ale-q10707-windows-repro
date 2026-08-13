@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "task_key": "id:10707",
+  "result": "PASS",
+  "business_goal_preserved": true,
+  "role": "协作平台工程师",
+  "consumers": [
+    "文档服务",
+    "事故分析团队"
+  ],
+  "actual_inputs": [
+    {
+      "path": "input_data/data/collaboration_ops.ndjson",
+      "use": "提供乱序编辑、重传修订、成员序号和因果依赖"
+    },
+    {
+      "path": "input_data/data/members.json",
+      "use": "提供成员角色和账户状态"
+    },
+    {
+      "path": "input_data/rules/causal_policy.json",
+      "use": "提供规范修订、就绪顺序、角色权限、终态时钟和交付路径"
+    },
+    {
+      "path": "input_data/starter/replay_collaboration.mjs与input_data/tools/run-task.mjs",
+      "use": "提供待完成程序和业务入口"
+    }
+  ],
+  "continuous_actions": [
+    "按操作主键选定规范修订",
+    "按成员序号和依赖向量形成就绪集合",
+    "按策略顺序裁决账户、角色和目标状态",
+    "让终态推进成员时钟并只让成功操作改变内容",
+    "生成操作台账、文档快照和成员时钟",
+    "从输入和三份业务报告生成对账摘要"
+  ],
+  "primary_software_necessity": "Node.js承担NDJSON逐行解析、Map与Set状态管理、稳定排序、跨平台文件路径、CSV与JSON生成以及子进程入口；仅靠表格编辑无法可靠表达因果就绪循环和失败收口。",
+  "hard_numeric_sources": [
+    {
+      "value": "16条原始操作",
+      "source": "collaboration_ops.ndjson逐行计数"
+    },
+    {
+      "value": "14个规范操作与2条旧修订",
+      "source": "操作流按op_id和revision收敛"
+    },
+    {
+      "value": "4名成员",
+      "source": "members.json的actor_id集合"
+    },
+    {
+      "value": "11项accepted与3项rejected",
+      "source": "因果策略、成员状态和终态操作台账"
+    },
+    {
+      "value": "五件交付和四份报告",
+      "source": "causal_policy.json的required_outputs与Prompt交付合同"
+    }
+  ],
+  "reference_integrity": "题目只引用输入包内的操作流、成员清单、因果策略、starter、入口和明确交付路径，没有外部链接、来源不明的规则或伪引用。",
+  "reasoning_chain": "Prompt从修订收敛进入因果就绪，再进入账户、角色与目标状态裁决，随后更新块、评论和成员时钟并生成报告；评分八项覆盖同一链条；五页答案给出路径、字段、集合、数值和允许变体；Reference含程序和四份报告。",
+  "prompt_delivery_score_answer_reference_closed": true,
+  "hallucination": false,
+  "fake_citation": false,
+  "broken_reasoning_chain": false,
+  "answer_leakage_in_prompt_or_score": false,
+  "static_or_online_ai_score_used_as_sole_conclusion": false
+}
