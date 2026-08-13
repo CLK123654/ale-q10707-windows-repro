@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "task_key": "id:10707",
+  "result": "PASS",
+  "scanned_sources": 218,
+  "violations": [],
+  "environment_contract": {
+    "valid": true,
+    "first_line": "操作系统： Windows11、macOS或主流64位Linux。"
+  },
+  "rubric_contract": {
+    "valid": true,
+    "total_score": 100,
+    "item_score_sum": 100,
+    "item_count": 8,
+    "gate_count": 2,
+    "items": [
+      {
+        "index": 1,
+        "title": "1. 输入合同与规范修订",
+        "score": 14,
+        "missing": [],
+        "priority": "Gate项",
+        "level": "L2"
+      },
+      {
+        "index": 2,
+        "title": "2. 因果就绪与成员时钟",
+        "score": 15,
+        "missing": [],
+        "priority": "Gate项",
+        "level": "L6"
+      },
+      {
+        "index": 3,
+        "title": "3. 账户、角色与目标状态裁决",
+        "score": 14,
+        "missing": [],
+        "priority": "高权重项",
+        "level": "L6"
+      },
+      {
+        "index": 4,
+        "title": "4. 块状态与页面顺序",
+        "score": 13,
+        "missing": [],
+        "priority": "高权重项",
+        "level": "L7"
+      },
+      {
+        "index": 5,
+        "title": "5. 评论与正文隔离",
+        "score": 10,
+        "missing": [],
+        "priority": "高权重项",
+        "level": "L7"
+      },
+      {
+        "index": 6,
+        "title": "6. 裁决台账与三份业务报告",
+        "score": 14,
+        "missing": [],
+        "priority": "高权重项",
+        "level": "L9"
+      },
+      {
+        "index": 7,
+        "title": "7. 对账摘要与终态闭合",
+        "score": 12,
+        "missing": [],
+        "priority": "普通项",
+        "level": "L9"
+      },
+      {
+        "index": 8,
+        "title": "8. Node.js交付与失败收口",
+        "score": 8,
+        "missing": [],
+        "priority": "普通项",
+        "level": "L10"
+      }
+    ]
+  },
+  "task_spec": {
+    "valid": true,
+    "column_count": 2,
+    "task_asset_id": "node_collaboration_causal_replay",
+    "forbidden_labels": []
+  },
+  "answer_sheets": [
+    "交付物答案清单",
+    "固定字段答案",
+    "固定集合答案",
+    "固定数值答案",
+    "允许变体答案"
+  ],
+  "humanizer_score": 47,
+  "manual_semantic_review": "PASS",
+  "windows_static_portability": "PASS",
+  "actions_triggered": false,
+  "business_entry_run_locally": false,
+  "attachments_sha256": {
+    "输入数据包.zip": "5686ea8cee2261abd1c058ef8d11e0a5ff8d2882e29e7d72801dab7b36ace72b",
+    "reference.zip": "f2de498e047b046e1a0712deba1aa76401c7e8ba0ee409dd692974385e69be35",
+    "关键标准答案.xlsx": "000db794e955499a8278ed91897ca8e6be452f54789ba37d2f26a98e97b1aea3",
+    "任务规格转化.xlsx": "0d47f5d2e06b494e0a831eba038f3a748a4210a11964b1842337a0a8181775e5"
+  },
+  "online_ai_detector_used_as_conclusion": false
+}
