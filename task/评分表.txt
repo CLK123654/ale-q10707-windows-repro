@@ -1,0 +1,97 @@
+总分100分
+
+1. 输入合同与规范修订
+分值：14分
+标准答案或判定规则：collaboration_ops.ndjson逐行解析且ingest_seq唯一；每个op_id按revision降序和ingest_seq降序选择一个规范修订，旧修订只记录为superseded_revision，不进入状态机。
+关键字段或路径：data/collaboration_ops.ndjson；rules/causal_policy.json中的canonical_revision；operation_decisions.csv中的ingest_seq、op_id、revision、decision
+容差及来源：操作主键、修订与ingest_seq无容差，来源为操作流和策略；台账行序按ingest_seq定位。
+未满足时：规范修订选择错误、同一op_id执行多次、旧修订改变页面、漏原始行、接受重复ingest_seq，或改写data与rules。
+可观察证据及定位方式：操作流按op_id分组与台账逐行关联，规范修订进入因果序列，旧修订的causal_rank为空。
+客观硬性标准：所有原始行进入台账，每个op_id唯一规范修订，旧修订没有状态副作用。
+通过阈值：三项全部满足。
+优先级：Gate项
+所属层级：L2输入与资源准备层
+
+2. 因果就绪与成员时钟
+分值：15分
+标准答案或判定规则：规范操作只在actor_seq等于本人当前时钟加1且dependencies的每项观察值均满足时进入裁决；同时就绪项按received_at升序和op_id升序处理；终态序号连续覆盖全部规范操作。
+关键字段或路径：collaboration_ops.ndjson中的actor_id、actor_seq、dependencies、received_at；causal_policy.json中的readiness与ready_order；operation_decisions.csv；actor_clocks.csv
+容差及来源：actor_seq、依赖值、causal_rank与observed_seq为整数且无容差，来源为操作流、策略和终态台账。
+未满足时：按输入行直接执行、跳过本人序号、忽略跨成员依赖、rejected不推进时钟、causal_rank断档，或留下未决规范操作。
+可观察证据及定位方式：每条规范操作的dependencies、causal_rank、actor_clock_after与最终成员时钟。
+客观硬性标准：每条规范操作在因果前提满足后裁决，终态序号连续，成员时钟达到各自最后序号。
+通过阈值：三项全部满足。
+优先级：Gate项
+所属层级：L6领域计算与专业规则层
+
+3. 账户、角色与目标状态裁决
+分值：14分
+标准答案或判定规则：先检查成员账户状态，再按permissions检查角色动作，最后检查目标块当前状态；失败操作写为rejected并记录明确reason，仍推进成员时钟但不改变块或评论。
+关键字段或路径：data/members.json；causal_policy.json中的permissions；operation_decisions.csv中的decision、reason、member_role、actor_clock_after；document_snapshot.json
+容差及来源：账户、角色、decision与reason无容差，来源为成员清单、策略和裁决时的目标状态。
+未满足时：viewer修改正文、停用成员插入块、对不存在或已删除目标操作、rejected产生内容，或拒绝终态不推进时钟。
+可观察证据及定位方式：被拒台账行与快照、评论及成员时钟逐项关联。
+客观硬性标准：账户、角色和目标状态按固定顺序裁决，所有rejected无内容副作用且时钟前进。
+通过阈值：三项全部满足。
+优先级：高权重项
+所属层级：L6领域计算与专业规则层
+
+4. 块状态与页面顺序
+分值：13分
+标准答案或判定规则：accepted的insert创建块并分配首次插入ordinal，edit只更新活跃块正文和last_op_id，delete移出活跃集合并记录deleted_block_ids；活跃块按ordinal排列。
+关键字段或路径：operation_decisions.csv中的kind、block_id、payload、decision、causal_rank；document_snapshot.json中的active_blocks与deleted_block_ids
+容差及来源：block_id、ordinal、last_op_id和正文无容差，来源为accepted操作的因果顺序；JSON数组顺序按ordinal比较。
+未满足时：按接收行序排列块、删除块仍活跃、rejected内容进入页面、块主键重复、ordinal重排，或最终正文不是最后成功写入。
+可观察证据及定位方式：accepted的insert、edit、delete台账与快照按block_id关联。
+客观硬性标准：块身份唯一，活跃与删除集合互斥，正文和顺序由成功操作唯一复算。
+通过阈值：三项全部满足。
+优先级：高权重项
+所属层级：L7交互行为与状态转换层
+
+5. 评论与正文隔离
+分值：10分
+标准答案或判定规则：accepted的comment只对活跃块新增独立评论，comment_id使用op_id；评论不得改变目标块的text、ordinal或last_op_id。
+关键字段或路径：operation_decisions.csv中的comment行；document_snapshot.json中的comments与active_blocks
+容差及来源：comment_id、block_id、actor_id与正文无容差，来源为accepted的comment；评论集合按comment_id稳定排列。
+未满足时：评论覆盖正文、目标无效、rejected产生评论、comment_id重复、顺序漂移，或成员身份丢失。
+可观察证据及定位方式：评论台账与快照的comments、目标active_blocks逐项关联。
+客观硬性标准：评论身份唯一且目标活跃，评论内容完整，目标块字段保持不变。
+通过阈值：三项全部满足。
+优先级：高权重项
+所属层级：L7交互行为与状态转换层
+
+6. 裁决台账与三份业务报告
+分值：14分
+标准答案或判定规则：operation_decisions.csv覆盖全部原始行并使用任务规定列序；document_snapshot.json包含document_id、活跃块、删除块和评论；actor_clocks.csv按actor_id汇总角色、账户、observed_seq与终态数量。
+关键字段或路径：operation_decisions.csv；document_snapshot.json；actor_clocks.csv；collaboration_ops.ndjson；members.json
+容差及来源：必要CSV引号、LF或CRLF可不同；表头、主键、字段类型和值无容差，JSON键序和缩进不计分。
+未满足时：台账缺行或重复、列缺失或换序、dependencies不可解析、旧修订伪造终态值、快照集合冲突，或成员时钟与台账不符。
+可观察证据及定位方式：台账按ingest_seq、快照按block_id与comment_id、成员时钟按actor_id定位。
+客观硬性标准：三份报告可解析，主键唯一，原始行、终态内容和成员时钟相互一致。
+通过阈值：三份报告全部满足。
+优先级：高权重项
+所属层级：L9跨产物一致性与可追溯层
+
+7. 对账摘要与终态闭合
+分值：12分
+标准答案或判定规则：reconciliation_summary.json从操作流和三份业务报告汇总原始行、规范操作、旧修订、accepted、rejected、未决项、活跃块、删除块、评论和成员时钟；relationships记录覆盖、唯一性、终态和跨报告关系，result只在全部关系成立时为PASS。
+关键字段或路径：reconciliation_summary.json中的result、measures、relationships；三份业务报告；操作流与策略
+容差及来源：计数为整数且无容差，关系值必须使用布尔类型，来源为当前输入和三份业务报告；字段名称允许等义组织。
+未满足时：摘要预填固定统计、字段类型错误、关系结论与报告矛盾、存在未决规范操作，或result与不一致数量冲突。
+可观察证据及定位方式：摘要字段与操作台账、快照和成员时钟的主键、计数和值。
+客观硬性标准：全部统计可复算，全部关系成立，result为PASS且inconsistency_count为0。
+通过阈值：三项全部满足。
+优先级：普通项
+所属层级：L9跨产物一致性与可追溯层
+
+8. Node.js交付与失败收口
+分值：8分
+标准答案或判定规则：交付业务源码和四份报告，Node.js从相对路径读取输入并覆盖报告；合同无效、主键冲突或因果操作无法进入终态时返回非零状态，未完成报告被清除。
+关键字段或路径：output/src/replay_collaboration.mjs；output/reports；input_data/tools/run-task.mjs；package.json
+容差及来源：路径按Prompt核对，错误附加文字不计分；退出状态必须反映成功或失败，来源为程序执行结果。
+未满足时：交付缺失或改名、使用作者绝对路径、依赖未声明服务或包、失败返回0，或失败后保留未完成报告。
+可观察证据及定位方式：交付文件树、源码路径处理、进程退出状态和失败后的reports目录。
+客观硬性标准：五件交付完整，相对路径可用，失败有非零状态且无残留报告。
+通过阈值：三项全部满足。
+优先级：普通项
+所属层级：L10异常场景与失败路径层
